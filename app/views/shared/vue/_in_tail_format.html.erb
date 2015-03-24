@@ -7,7 +7,7 @@
     </div>
     <div class="form-group" v-repeat="options">
       <label>{{ $value }} </label>
-      <input type="text" name="setting[{{ $value }}]" v-model="params.setting[$value]" size="100%" />
+      <input type="text" name="setting[{{ $value }}]" v-model="params.setting[$value]" v-on="keyup: onKeyup" size="100%" />
     </div>
 </script>
 

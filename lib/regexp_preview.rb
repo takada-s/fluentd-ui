@@ -4,15 +4,17 @@ require "fluent/configurable"
 require "fluent/parser"
 
 class RegexpPreview
-  attr_reader :file, :format, :time_format, :regexp
+  attr_reader :file, :format, :params, :time_format, :regexp
 
-  def initialize(file, format, options = {})
+  def initialize(file, format, params = {}, options = {})
     @file = file
     @format = format
+    @params = params
     case format
     when "regexp"
       @regexp = Regexp.new(options[:regexp])
       @time_format = options[:time_format]
+    when "multiline"
     when "ltsv", "json", "csv", "tsv"
     else
       definition = Fluent::TextParser::TEMPLATE_REGISTRY.lookup(format).call
@@ -45,4 +47,38 @@ class RegexpPreview
     end
     matches
   end
+
+  def matches_multiline
+    return [] unless multiline_regexps.empty?
+    stack = multiline_regexps.dup
+    buf = []
+    reader.tail.map do |line|
+      if line.match(stack.last)
+      end
+      if stack.empty?
+        stack = multiline_regexps.dup
+      end
+    end
+  end
+
+  def multiline_regexps
+    regexps = (1..20).reverse.map do |n|
+      params["format#{n}"]
+    end
+    regexps << params[:format_firstline]
+    regexps.compact
+  end
+end
+
+
+id = condition_key.match(/[0-9]+\z/).to_i
+if condition_key.start_with?("cource_id")
+  {
+    course_id: id
+  }
+elsif condition_key.start_with?("managed_check_id")
+  {
+    managed_check_id: id,
+    class: managed_check_id,
+  }
 end
